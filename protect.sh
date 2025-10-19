@@ -11,7 +11,7 @@ VERSION="1.5"
 clear
 echo -e "${CYAN}${BOLD}"
 echo "╔══════════════════════════════════════════════════════╗"
-echo "║         GreySync Protect + Panel Grey             ║"
+echo "║         GreySync Protect + Panel Grey                ║"
 echo "║                    Version $VERSION                       ║"
 echo "╚══════════════════════════════════════════════════════╝"
 echo -e "${RESET}"
@@ -24,6 +24,7 @@ read -p "$(echo -e "${CYAN}Pilih opsi [1/2/3]: ${RESET}")" OPSI
 CONTROLLER_USER="/var/www/pterodactyl/app/Http/Controllers/Admin/UserController.php"
 SERVICE_SERVER="/var/www/pterodactyl/app/Services/Servers/ServerDeletionService.php"
 API_SERVER_CONTROLLER="/var/www/pterodactyl/app/Http/Controllers/Api/Client/Servers/ServerController.php"
+VIEW_DIR="/var/www/pterodactyl/resources/views/admin"
 BACKUP_DIR="backup_greysyncx"
 
 mkdir -p "$BACKUP_DIR"
@@ -84,7 +85,18 @@ if [ "$OPSI" = "1" ]; then
     { print }' "$API_SERVER_CONTROLLER" > "$API_SERVER_CONTROLLER.tmp" && mv "$API_SERVER_CONTROLLER.tmp" "$API_SERVER_CONTROLLER"
     echo -e "${GREEN}✔ Anti Intip Server selesai.${RESET}"
 
-    echo -e "${GREEN}🎉 Protect v$VERSION berhasil dipasang${RESET}"
+    # === Blokir akses halaman admin (Nodes, Locations, Wings, Users, Allocations) ===
+    echo -e "${YELLOW}➤ Memblokir akses halaman Admin (non-owner)...${RESET}"
+    for PAGE in nodes locations allocations users servers wings; do
+        FILE="$VIEW_DIR/$PAGE/index.blade.php"
+        if [ -f "$FILE" ]; then
+            sed -i "1i @php if(auth()->user()->id !== $ADMIN_ID) { abort(403, '❌ Lu siapa mau buka halaman admin ini! Jasa Pasang Anti-Rusuh t.me/greysyncx'); } @endphp" "$FILE"
+            echo -e "${GREEN}✔ Proteksi diterapkan ke: ${PAGE}${RESET}"
+        fi
+    done
+    echo -e "${GREEN}✔ Semua halaman admin kini hanya bisa dibuka oleh Owner ID $ADMIN_ID.${RESET}"
+
+    echo -e "${GREEN}🎉 Protect v$VERSION berhasil dipasang.${RESET}"
 
 elif [ "$OPSI" = "2" ]; then
     echo -e "${CYAN}♻ Mengembalikan semua file dari backup terbaru...${RESET}"
