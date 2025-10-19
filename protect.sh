@@ -6,7 +6,7 @@ CYAN="\033[1;36m"
 YELLOW="\033[1;33m"
 RESET="\033[0m"
 BOLD="\033[1m"
-VERSION="1.5"
+VERSION="1.6"
 
 clear
 echo -e "${CYAN}${BOLD}"
